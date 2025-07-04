@@ -1,44 +1,49 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useState } from 'react';
 import './Login.css';
+import { useNavigate } from 'react-router-dom';
+
+import axios from 'axios';
 
 export const Login = () => {
-  const [credentials, setCredentials] = useState({
-    email: '',
-    password: ''
-  });
+    
+    const navigate = useNavigate();
+    const [email,setEmail] = useState('');
+    const [password,setPassword] = useState('');
+ 
 
-  const handleChange = (e) => {
-    setCredentials({
-      ...credentials,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Login Attempt:', credentials);
-    // Add login logic here (API call, validation, etc.)
-  };
+    const handleLogin = (e) => {
+        e.preventDefault();
+        axios.post("http://localhost:3001/login",{email,password})
+        .then(result=>{
+            if(result.data==="success"){
+                navigate("/home")
+            }else{
+                alert("login failed : user doent exist.")
+            }
+        })
+        .catch(err=>console.log(err))
+};
 
   return (
     <div className="login-container">
       <h2>Login</h2>
-      <form className="login-form" onSubmit={handleSubmit}>
+      <form className="login-form" onSubmit={handleLogin}>
         <input
           type="email"
+          onChange={(e)=>setEmail(e.target.value)}
           name="email"
           placeholder="Email"
-          value={credentials.email}
-          onChange={handleChange}
+          value={email}
           required
         />
 
         <input
           type="password"
           name="password"
+          onChange={(e)=>setPassword(e.target.value)}
           placeholder="Password"
-          value={credentials.password}
-          onChange={handleChange}
+          value={password}
           required
         />
 
