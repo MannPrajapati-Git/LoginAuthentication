@@ -1,29 +1,41 @@
-import React from 'react';
-import { useState } from 'react';
-import './Login.css';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useState } from "react";
+import "./Login.css";
+import { useNavigate } from "react-router-dom";
 
-import axios from 'axios';
+import axios from "axios";
 
 export const Login = () => {
-    
-    const navigate = useNavigate();
-    const [email,setEmail] = useState('');
-    const [password,setPassword] = useState('');
- 
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    const handleLogin = (e) => {
-        e.preventDefault();
-        axios.post("http://localhost:3001/login",{email,password})
-        .then(result=>{
-            if(result.data==="success"){
-                navigate("/home")
-            }else{
-                alert("login failed : user doent exist.")
-            }
-        })
-        .catch(err=>console.log(err))
-};
+  const handleLogin = (e) => {
+    e.preventDefault();
+    axios
+      .post(
+        "http://localhost:3001/login",
+        { email, password },
+        { withCredentials: true }
+      )
+      .then((result) => {
+        if (result.data === "success") {
+          axios
+            .get("http://localhost:3001/user", {
+              withCredentials: true,
+            })
+
+            .then((response) => {
+              if (response.data.user) {
+                navigate("/home", { state: { user: response.data.user } });
+              }
+            });
+        } else {
+          alert("login failed : user doent exist.");
+        }
+      })
+      .catch((err) => console.log(err));
+  };
 
   return (
     <div className="login-container">
@@ -31,7 +43,7 @@ export const Login = () => {
       <form className="login-form" onSubmit={handleLogin}>
         <input
           type="email"
-          onChange={(e)=>setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           name="email"
           placeholder="Email"
           value={email}
@@ -41,7 +53,7 @@ export const Login = () => {
         <input
           type="password"
           name="password"
-          onChange={(e)=>setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
           value={password}
           required
